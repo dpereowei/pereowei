@@ -4,18 +4,60 @@ import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import portrait from '../assets/pereowei-headshot-bw-cutout.png';
 import './styles.css';
 
-const work = [
+const experience = [
+  {
+    role: 'Lead Infrastructure Engineer',
+    company: 'DLM Capital Group',
+    summary:
+      'Own cloud infrastructure, platform reliability, CI/CD, observability, incident response, and secure deployment paths for transaction-critical financial services systems.',
+  },
+  {
+    role: 'Cloud / DevOps Engineer',
+    company: 'Cousant',
+    summary:
+      'Built and maintained cloud infrastructure, automation, deployment workflows, and operational documentation for internal and client-facing systems.',
+  },
+  {
+    role: 'Backend / DevOps Engineer',
+    company: 'Earlier engineering work',
+    summary:
+      'Worked across backend services, Linux operations, API integrations, database-backed systems, and developer workflow automation.',
+  },
+];
+
+const projects = [
+  {
+    name: 'Payrail',
+    tag: 'Payments',
+    description:
+      'Payment and infrastructure-oriented engineering work spanning backend systems, operational reliability, and delivery workflows.',
+  },
+  {
+    name: 'Rollercoaster',
+    tag: 'Systems project',
+    description:
+      'A project showcase for product engineering, system design, delivery ownership, and practical cloud/backend work.',
+  },
+  {
+    name: 'gh_issues',
+    tag: 'Developer automation',
+    description:
+      'Automation around GitHub issues, workflows, triage, and engineering productivity.',
+  },
+];
+
+const openSource = [
   {
     name: 'FabricOps',
     tag: 'LFDT Maintainer',
     description:
-      'A Kubernetes operator for Hyperledger Fabric networks, with reconciliation, CRDs, status updates, safe rollouts, and drift repair.',
+      'Kubernetes-native operations tooling for Hyperledger Fabric networks, now accepted under LFDT.',
   },
   {
-    name: 'DLM Capital Group',
-    tag: 'Fintech Infrastructure',
+    name: 'Fablo',
+    tag: 'Hyperledger Fabric',
     description:
-      'Production AWS, Kubernetes, CI/CD, observability, and secure infrastructure for transaction-critical financial services.',
+      'Open source work around Fabric development workflows, local network setup, and developer experience.',
   },
   {
     name: 'Reporting Data Plane',
@@ -150,17 +192,44 @@ function App() {
       <section className="section work-section" id="work" aria-labelledby="work-title">
         <div className="section-copy" data-reveal>
           <p className="eyebrow">/ Work</p>
-          <h2 id="work-title">Infrastructure projects with production weight.</h2>
+          <h2 id="work-title">Roles, projects, and open source work.</h2>
         </div>
-        <div className="card-grid">
-          {work.map((item, index) => (
-            <article className="card" key={item.name} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
-              <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-              <p>{item.tag}</p>
-              <h3>{item.name}</h3>
-              <span>{item.description}</span>
-            </article>
-          ))}
+        <div className="work-lanes">
+          <div className="lane" data-reveal>
+            <p className="lane-label">Experience</p>
+            {experience.map((item, index) => (
+              <article className="card role-card" key={`${item.company}-${item.role}`} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
+                <p>{item.company}</p>
+                <h3>{item.role}</h3>
+                <span>{item.summary}</span>
+              </article>
+            ))}
+          </div>
+
+          <div className="lane" data-reveal style={{ '--delay': '90ms' }}>
+            <p className="lane-label">Projects</p>
+            {projects.map((item, index) => (
+              <article className="card" key={item.name} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
+                <p>{item.tag}</p>
+                <h3>{item.name}</h3>
+                <span>{item.description}</span>
+              </article>
+            ))}
+          </div>
+
+          <div className="lane" data-reveal style={{ '--delay': '180ms' }}>
+            <p className="lane-label">Open Source</p>
+            {openSource.map((item, index) => (
+              <article className="card" key={item.name} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
+                <p>{item.tag}</p>
+                <h3>{item.name}</h3>
+                <span>{item.description}</span>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -180,6 +249,10 @@ function App() {
         <div className="section-copy" data-reveal>
           <p className="eyebrow">/ Writing</p>
           <h2 id="blog-title">Notes on infrastructure, reliability, and the messy middle of production systems.</h2>
+          <p className="section-note">
+            Admin publishing will come after first deployment: MDX posts first, then an authenticated writing flow
+            for drafts, previews, and Git-backed publishing.
+          </p>
         </div>
         <div className="post-grid">
           {posts.map((post, index) => (

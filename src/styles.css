@@ -665,6 +665,46 @@ h1 {
   align-items: start;
 }
 
+.auth-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  max-width: 48rem;
+  border: 1px solid #2b2f36;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(147, 245, 189, 0.12), transparent 36%),
+    rgba(17, 19, 24, 0.9);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.auth-panel svg {
+  color: #93f5bd;
+}
+
+.auth-panel h2 {
+  color: #ffffff;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.1;
+  margin-bottom: 0.8rem;
+}
+
+.auth-panel p {
+  color: #c8d0da;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.auth-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
 .editor-panel,
 .preview-panel {
   border: 1px solid #2b2f36;
@@ -739,6 +779,14 @@ h1 {
 
 .secondary-button:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.disabled-button,
+.disabled-button:hover {
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+  box-shadow: none;
 }
 
 .preview-panel {

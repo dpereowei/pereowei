@@ -137,7 +137,6 @@ function SiteNav({ page = false }) {
       <div className="nav-links">
         <a href="#work">Work</a>
         <a href="#/blog">Blog</a>
-        <a href="#/admin">Admin</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </div>
@@ -352,6 +351,95 @@ const emptyDraft = {
 };
 
 function AdminPage() {
+  const sessionEndpoint = import.meta.env.VITE_ADMIN_SESSION_ENDPOINT;
+  const [sessionState, setSessionState] = useState({
+    loading: Boolean(sessionEndpoint),
+    authenticated: false,
+  });
+
+  useEffect(() => {
+    if (!sessionEndpoint) return undefined;
+
+    const controller = new AbortController();
+
+    async function loadSession() {
+      try {
+        const response = await fetch(sessionEndpoint, {
+          credentials: 'include',
+          signal: controller.signal,
+        });
+        const session = response.ok ? await response.json() : null;
+
+        setSessionState({
+          loading: false,
+          authenticated: Boolean(session?.authenticated && session?.provider === 'github'),
+        });
+      } catch {
+        if (!controller.signal.aborted) {
+          setSessionState({ loading: false, authenticated: false });
+        }
+      }
+    }
+
+    loadSession();
+    return () => controller.abort();
+  }, [sessionEndpoint]);
+
+  if (sessionState.loading) {
+    return <AdminGate loading />;
+  }
+
+  if (!sessionState.authenticated) {
+    return <AdminGate />;
+  }
+
+  return <AdminEditor />;
+}
+
+function AdminGate({ loading = false }) {
+  const githubAuthUrl = import.meta.env.VITE_GITHUB_AUTH_URL;
+
+  return (
+    <main>
+      <section className="page-shell admin-page" aria-labelledby="admin-title">
+        <SiteNav page />
+        <div className="admin-hero" data-reveal>
+          <p className="eyebrow">/ Admin</p>
+          <h1 id="admin-title">GitHub sign-in required.</h1>
+          <p>
+            The writing room is intentionally hidden from public navigation. The direct admin route stays available,
+            but the editor only opens after a GitHub-backed admin session exists.
+          </p>
+        </div>
+
+        <div className="auth-panel" data-reveal data-spotlight>
+          <Github size={28} aria-hidden="true" />
+          <div>
+            <h2>Private publishing access</h2>
+            <p>
+              {loading
+                ? 'Checking for an active GitHub session.'
+                : 'GitHub Pages is static, so the secure sign-in step needs a small OAuth token exchange before drafts can publish back to the repository.'}
+            </p>
+          </div>
+          <div className="auth-actions">
+            {loading ? (
+              <span className="button disabled-button" aria-disabled="true">Checking session</span>
+            ) : githubAuthUrl ? (
+              <a className="button" href={githubAuthUrl}>Sign in with GitHub <ArrowUpRight size={16} /></a>
+            ) : (
+              <span className="button disabled-button" aria-disabled="true">GitHub auth not connected</span>
+            )}
+            <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+          </div>
+        </div>
+      </section>
+      <SiteFooter />
+    </main>
+  );
+}
+
+function AdminEditor() {
   const [draft, setDraft] = useState(() => {
     try {
       const stored = window.localStorage.getItem('pereowei-blog-draft');

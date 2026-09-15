@@ -1,95 +1,56 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import portrait from '../assets/pereowei-headshot-bw-cutout.png';
+import { experience, openSource, projects } from './content/portfolio';
+import { getPost, posts } from './content/posts';
 import './styles.css';
 
-const experience = [
-  {
-    role: 'Lead Infrastructure Engineer',
-    company: 'DLM Capital Group',
-    summary:
-      'Own cloud infrastructure, platform reliability, CI/CD, observability, incident response, and secure deployment paths for transaction-critical financial services systems.',
-  },
-  {
-    role: 'Cloud / DevOps Engineer',
-    company: 'Cousant',
-    summary:
-      'Built and maintained cloud infrastructure, automation, deployment workflows, and operational documentation for internal and client-facing systems.',
-  },
-  {
-    role: 'Backend / DevOps Engineer',
-    company: 'Earlier engineering work',
-    summary:
-      'Worked across backend services, Linux operations, API integrations, database-backed systems, and developer workflow automation.',
-  },
-];
+function getRoute() {
+  const hash = window.location.hash.replace(/^#/, '');
 
-const projects = [
-  {
-    name: 'Payrail',
-    tag: 'Payments',
-    description:
-      'Payment and infrastructure-oriented engineering work spanning backend systems, operational reliability, and delivery workflows.',
-  },
-  {
-    name: 'Rollercoaster',
-    tag: 'Systems project',
-    description:
-      'A project showcase for product engineering, system design, delivery ownership, and practical cloud/backend work.',
-  },
-  {
-    name: 'gh_issues',
-    tag: 'Developer automation',
-    description:
-      'Automation around GitHub issues, workflows, triage, and engineering productivity.',
-  },
-];
+  if (hash === '/blog') return { name: 'blog' };
+  if (hash.startsWith('/blog/')) return { name: 'post', slug: hash.replace('/blog/', '') };
 
-const openSource = [
-  {
-    name: 'FabricOps',
-    tag: 'LFDT Maintainer',
-    description:
-      'Kubernetes-native operations tooling for Hyperledger Fabric networks, now accepted under LFDT.',
-  },
-  {
-    name: 'Fablo',
-    tag: 'Hyperledger Fabric',
-    description:
-      'Open source work around Fabric development workflows, local network setup, and developer experience.',
-  },
-  {
-    name: 'Reporting Data Plane',
-    tag: 'CDC + ClickHouse',
-    description:
-      'Continuous replication from operational RDS databases into ClickHouse for admin reporting without loading the live database.',
-  },
-];
+  return { name: 'home', anchor: hash || 'home' };
+}
 
-const posts = [
-  {
-    title: 'Production readiness is a design problem',
-    excerpt:
-      'SLOs, runbooks, alert quality, and the small operational habits that keep teams calm when systems get loud.',
-  },
-  {
-    title: 'Building FabricOps under LFDT',
-    excerpt:
-      'What a Kubernetes operator teaches you about reconciliation, platform abstractions, and real-world infrastructure.',
-  },
-  {
-    title: 'Reporting without hurting live databases',
-    excerpt:
-      'A CDC pattern for streaming operational data into ClickHouse so reporting reads stay away from production paths.',
-  },
-];
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
 
-function App() {
+function useRoute() {
+  const [route, setRoute] = useState(getRoute);
+
+  useEffect(() => {
+    const onHashChange = () => setRoute(getRoute());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  return route;
+}
+
+function useMotion(route) {
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const root = document.documentElement;
     let cleanupSpotlights = () => {};
+
+    window.requestAnimationFrame(() => {
+      if (route.name === 'home') {
+        document.getElementById(route.anchor)?.scrollIntoView({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+        return;
+      }
+
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
 
     if (reduceMotion) {
       document.querySelectorAll('[data-reveal]').forEach((node) => node.classList.add('is-visible'));
@@ -151,20 +112,41 @@ function App() {
       window.removeEventListener('pointermove', onPointerMove);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [route.name, route.slug]);
+}
 
+function App() {
+  const route = useRoute();
+  useMotion(route);
+
+  const view = useMemo(() => {
+    if (route.name === 'blog') return <BlogIndex />;
+    if (route.name === 'post') return <ArticlePage slug={route.slug} />;
+    return <HomePage />;
+  }, [route]);
+
+  return view;
+}
+
+function SiteNav({ page = false }) {
+  return (
+    <nav className={page ? 'nav page-nav' : 'nav'} aria-label="Primary navigation" data-reveal>
+      <a href="#home" className="brand">Pereowei Daniel</a>
+      <div className="nav-links">
+        <a href="#work">Work</a>
+        <a href="#/blog">Blog</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  );
+}
+
+function HomePage() {
   return (
     <main>
       <section className="hero" id="home" aria-labelledby="hero-title">
-        <nav className="nav" aria-label="Primary navigation" data-reveal>
-          <a href="#home" className="brand">Pereowei Daniel</a>
-          <div className="nav-links">
-            <a href="#work">Work</a>
-            <a href="#blog">Blog</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
-          </div>
-        </nav>
+        <SiteNav />
 
         <div className="hero-stage">
           <div className="hero-copy" data-reveal>
@@ -178,6 +160,7 @@ function App() {
             alt="Black and white portrait of Pereowei Daniel"
             className="portrait"
           />
+          <div className="portrait-ground" aria-hidden="true" />
 
           <div className="hero-proof" data-reveal>
             <p>
@@ -195,41 +178,9 @@ function App() {
           <h2 id="work-title">Roles, projects, and open source work.</h2>
         </div>
         <div className="work-lanes">
-          <div className="lane" data-reveal>
-            <p className="lane-label">Experience</p>
-            {experience.map((item, index) => (
-              <article className="card role-card" key={`${item.company}-${item.role}`} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
-                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-                <p>{item.company}</p>
-                <h3>{item.role}</h3>
-                <span>{item.summary}</span>
-              </article>
-            ))}
-          </div>
-
-          <div className="lane" data-reveal style={{ '--delay': '90ms' }}>
-            <p className="lane-label">Projects</p>
-            {projects.map((item, index) => (
-              <article className="card" key={item.name} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
-                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-                <p>{item.tag}</p>
-                <h3>{item.name}</h3>
-                <span>{item.description}</span>
-              </article>
-            ))}
-          </div>
-
-          <div className="lane" data-reveal style={{ '--delay': '180ms' }}>
-            <p className="lane-label">Open Source</p>
-            {openSource.map((item, index) => (
-              <article className="card" key={item.name} data-spotlight style={{ '--delay': `${index * 90}ms` }}>
-                <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-                <p>{item.tag}</p>
-                <h3>{item.name}</h3>
-                <span>{item.description}</span>
-              </article>
-            ))}
-          </div>
+          <WorkLane title="Experience" items={experience} role />
+          <WorkLane title="Projects" items={projects} delay="90ms" />
+          <WorkLane title="Open Source" items={openSource} delay="180ms" />
         </div>
       </section>
 
@@ -256,24 +207,150 @@ function App() {
         </div>
         <div className="post-grid">
           {posts.map((post, index) => (
-            <article className="post" key={post.title} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+            <article className="post" key={post.slug} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+              <p className="post-meta">{post.tag} · {post.readTime}</p>
               <h3>{post.title}</h3>
               <p>{post.excerpt}</p>
-              <a href="#contact" aria-label={`Discuss ${post.title}`}>Discuss this <ArrowUpRight size={14} /></a>
+              <a href={`#/blog/${post.slug}`} aria-label={`Read ${post.title}`}>Read note <ArrowUpRight size={14} /></a>
             </article>
           ))}
         </div>
       </section>
 
-      <footer className="footer" id="contact" data-reveal>
-        <p>Open to infrastructure, platform, SRE, and cloud engineering work.</p>
-        <div className="socials">
-          <a href="mailto:iwenyadaniel12@gmail.com"><Mail size={18} /> Email</a>
-          <a href="https://github.com/dpereowei"><Github size={18} /> GitHub</a>
-          <a href="https://linkedin.com/in/pereowei"><Linkedin size={18} /> LinkedIn</a>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
+  );
+}
+
+function WorkLane({ title, items, delay, role = false }) {
+  return (
+    <div className="lane" data-reveal style={{ '--delay': delay }}>
+      <p className="lane-label">{title}</p>
+      {items.map((item, index) => (
+        <article
+          className={role ? 'card role-card' : 'card'}
+          key={role ? `${item.company}-${item.role}` : item.name}
+          data-spotlight
+        >
+          <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
+          <p>{role ? item.company : item.tag}</p>
+          <h3>{role ? item.role : item.name}</h3>
+          <span>{role ? item.summary : item.description}</span>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function BlogIndex() {
+  return (
+    <main>
+      <section className="page-shell" aria-labelledby="blog-page-title">
+        <SiteNav page />
+        <div className="page-hero" data-reveal>
+          <p className="eyebrow">/ Blog</p>
+          <h1 id="blog-page-title">Field notes on infrastructure and reliability.</h1>
+          <p>
+            Short, practical notes on cloud systems, production operations, open source work, and the engineering
+            habits that keep teams steady.
+          </p>
+        </div>
+
+        <div className="article-list">
+          {posts.map((post, index) => (
+            <article className="article-card" key={post.slug} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
+              <p className="post-meta">{post.tag} · {post.readTime} · {post.date}</p>
+              <h2>{post.title}</h2>
+              <p>{post.excerpt}</p>
+              <a href={`#/blog/${post.slug}`}>Read article <ArrowUpRight size={16} /></a>
+            </article>
+          ))}
+        </div>
+      </section>
+      <SiteFooter />
+    </main>
+  );
+}
+
+function ArticlePage({ slug }) {
+  const post = getPost(slug);
+
+  if (!post) {
+    return (
+      <main>
+        <section className="page-shell">
+          <SiteNav page />
+          <div className="page-hero narrow" data-reveal>
+            <p className="eyebrow">/ Not found</p>
+            <h1>That note is not published yet.</h1>
+            <p>The blog route exists, but this slug does not match a current post.</p>
+            <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+          </div>
+        </section>
+        <SiteFooter />
+      </main>
+    );
+  }
+
+  return (
+    <main>
+      <article className="page-shell article-page">
+        <SiteNav page />
+        <header className="article-header" data-reveal>
+          <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+          <p className="eyebrow">/ {post.tag}</p>
+          <h1>{post.title}</h1>
+          <p>{post.excerpt}</p>
+          <span>{post.date} · {post.readTime}</span>
+        </header>
+
+        <div className="article-layout">
+          <aside className="article-toc" data-reveal>
+            <p>On This Page</p>
+            {post.sections.map((section) => (
+              <a
+                key={section.heading}
+                href={`#/blog/${post.slug}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  document.getElementById(slugify(section.heading))?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                {section.heading}
+              </a>
+            ))}
+          </aside>
+
+          <div className="article-body">
+            {post.sections.map((section, index) => (
+              <section
+                id={slugify(section.heading)}
+                key={section.heading}
+                data-reveal
+                style={{ '--delay': `${index * 80}ms` }}
+              >
+                <h2>{section.heading}</h2>
+                <p>{section.body}</p>
+              </section>
+            ))}
+          </div>
+        </div>
+      </article>
+      <SiteFooter />
+    </main>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="footer" id="contact" data-reveal>
+      <p>Open to infrastructure, platform, SRE, and cloud engineering work.</p>
+      <div className="socials">
+        <a href="mailto:iwenyadaniel12@gmail.com"><Mail size={18} /> Email</a>
+        <a href="https://github.com/dpereowei"><Github size={18} /> GitHub</a>
+        <a href="https://linkedin.com/in/pereowei"><Linkedin size={18} /> LinkedIn</a>
+      </div>
+    </footer>
   );
 }
 

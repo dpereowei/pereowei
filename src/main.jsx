@@ -10,6 +10,7 @@ function getRoute() {
   const hash = window.location.hash.replace(/^#/, '');
 
   if (hash === '/blog') return { name: 'blog' };
+  if (hash === '/admin') return { name: 'admin' };
   if (hash.startsWith('/blog/')) return { name: 'post', slug: hash.replace('/blog/', '') };
 
   return { name: 'home', anchor: hash || 'home' };
@@ -121,6 +122,7 @@ function App() {
 
   const view = useMemo(() => {
     if (route.name === 'blog') return <BlogIndex />;
+    if (route.name === 'admin') return <AdminPage />;
     if (route.name === 'post') return <ArticlePage slug={route.slug} />;
     return <HomePage />;
   }, [route]);
@@ -135,6 +137,7 @@ function SiteNav({ page = false }) {
       <div className="nav-links">
         <a href="#work">Work</a>
         <a href="#/blog">Blog</a>
+        <a href="#/admin">Admin</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </div>
@@ -336,6 +339,120 @@ function ArticlePage({ slug }) {
           </div>
         </div>
       </article>
+      <SiteFooter />
+    </main>
+  );
+}
+
+const emptyDraft = {
+  title: '',
+  tag: 'Reliability',
+  excerpt: '',
+  body: '',
+};
+
+function AdminPage() {
+  const [draft, setDraft] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem('pereowei-blog-draft');
+      return stored ? { ...emptyDraft, ...JSON.parse(stored) } : emptyDraft;
+    } catch {
+      return emptyDraft;
+    }
+  });
+
+  const slug = draft.title ? slugify(draft.title) : 'new-post-slug';
+  const paragraphs = draft.body
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  function updateDraft(field, value) {
+    setDraft((current) => {
+      const next = { ...current, [field]: value };
+      window.localStorage.setItem('pereowei-blog-draft', JSON.stringify(next));
+      return next;
+    });
+  }
+
+  function clearDraft() {
+    window.localStorage.removeItem('pereowei-blog-draft');
+    setDraft(emptyDraft);
+  }
+
+  return (
+    <main>
+      <section className="page-shell admin-page" aria-labelledby="admin-title">
+        <SiteNav page />
+        <div className="admin-hero" data-reveal>
+          <p className="eyebrow">/ Admin</p>
+          <h1 id="admin-title">Draft and preview blog posts.</h1>
+          <p>
+            This is the first writing slice: browser-saved drafts with a live preview. The next publishing slice can
+            connect this shape to Git-backed content.
+          </p>
+        </div>
+
+        <div className="admin-layout">
+          <form className="editor-panel" data-reveal>
+            <label>
+              Title
+              <input
+                value={draft.title}
+                onChange={(event) => updateDraft('title', event.target.value)}
+                placeholder="A practical note on reliability"
+              />
+            </label>
+
+            <label>
+              Tag
+              <input
+                value={draft.tag}
+                onChange={(event) => updateDraft('tag', event.target.value)}
+                placeholder="Reliability"
+              />
+            </label>
+
+            <label>
+              Excerpt
+              <textarea
+                value={draft.excerpt}
+                onChange={(event) => updateDraft('excerpt', event.target.value)}
+                placeholder="One crisp sentence that explains why this note matters."
+                rows={4}
+              />
+            </label>
+
+            <label>
+              Body
+              <textarea
+                value={draft.body}
+                onChange={(event) => updateDraft('body', event.target.value)}
+                placeholder="Write in plain paragraphs for now. Separate sections with a blank line."
+                rows={12}
+              />
+            </label>
+
+            <div className="editor-actions">
+              <button type="button" className="button secondary-button" onClick={clearDraft}>Clear draft</button>
+              <a className="button" href="#/blog">View blog <ArrowUpRight size={16} /></a>
+            </div>
+          </form>
+
+          <aside className="preview-panel" data-reveal style={{ '--delay': '90ms' }}>
+            <p className="post-meta">{draft.tag || 'Tag'} · Draft · /{slug}</p>
+            <h2>{draft.title || 'Untitled draft'}</h2>
+            <p>{draft.excerpt || 'Your excerpt preview will appear here.'}</p>
+            <div className="preview-body">
+              {paragraphs.length > 0 ? (
+                paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+              ) : (
+                <p>Start writing to preview the article body.</p>
+              )}
+            </div>
+          </aside>
+        </div>
+      </section>
       <SiteFooter />
     </main>
   );

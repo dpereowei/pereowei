@@ -127,7 +127,12 @@ function App() {
     return <HomePage />;
   }, [route]);
 
-  return view;
+  return (
+    <>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      {view}
+    </>
+  );
 }
 
 function SiteNav({ page = false }) {
@@ -146,76 +151,116 @@ function SiteNav({ page = false }) {
 
 function HomePage() {
   return (
-    <main>
+    <main id="main-content">
       <section className="hero" id="home" aria-labelledby="hero-title">
         <SiteNav />
 
         <div className="hero-stage">
-          <div className="hero-copy" data-reveal>
-            <p className="eyebrow">Lead Infrastructure Engineer</p>
-            <h1 id="hero-title">I build reliable cloud systems for teams that cannot afford quiet failures.</h1>
-          </div>
-
           <p className="hero-word" aria-hidden="true">PEREOWEI</p>
           <img
             src={portrait}
             alt="Black and white portrait of Pereowei Daniel"
             className="portrait"
+            width="1254"
+            height="1254"
+            fetchPriority="high"
           />
-          <div className="portrait-ground" aria-hidden="true" />
 
-          <div className="hero-proof" data-reveal>
-            <p>
-              Lead Infrastructure Engineer at DLM Capital Group. Maintainer of FabricOps under LFDT. AWS,
-              Kubernetes, Terraform, CI/CD, observability.
-            </p>
-            <a className="button" href="#work">View work <ArrowUpRight size={16} /></a>
+          <h1 className="hero-statement" id="hero-title" data-reveal>
+            Infrastructure for systems that cannot afford quiet failure.
+          </h1>
+
+          <div className="hero-proof" data-reveal style={{ '--delay': '100ms' }}>
+            <p>Lead Infrastructure Engineer</p>
+            <p>FabricOps Maintainer under LFDT</p>
+            <a className="text-link" href="#work">Selected work <ArrowUpRight size={16} aria-hidden="true" /></a>
+          </div>
+
+          <div className="hero-rail" aria-label="Professional availability">
+            <p><span className="status-dot" /> Available for select opportunities</p>
+            <p>Build <span>/</span> Operate <span>/</span> Improve</p>
           </div>
         </div>
       </section>
 
-      <section className="section work-section" id="work" aria-labelledby="work-title">
-        <div className="section-copy" data-reveal>
-          <p className="eyebrow">/ Work</p>
-          <h2 id="work-title">Roles, projects, and open source work.</h2>
-        </div>
-        <div className="work-lanes">
-          <WorkLane title="Experience" items={experience} role />
-          <WorkLane title="Projects" items={projects} delay="90ms" />
-          <WorkLane title="Open Source" items={openSource} delay="180ms" />
-        </div>
-      </section>
+      <section className="work-section" id="work" aria-labelledby="work-title">
+        <header className="chapter-header" data-reveal>
+          <h2 id="work-title">Work /<br />Systems in production</h2>
+          <div>
+            <p>Real-world infrastructure.<br />Open systems. Lasting impact.</p>
+            <span className="accent-rule" />
+          </div>
+        </header>
 
-      <section className="section about-section" id="about" aria-labelledby="about-title">
-        <div data-reveal>
-          <p className="eyebrow">/ About</p>
-          <h2 id="about-title">I work where cloud platforms, backend systems, and reliability meet.</h2>
-        </div>
-        <p data-reveal>
-          My day-to-day work spans AWS, Kubernetes, Terraform, CI/CD, Linux, incident response, observability,
-          secure networking, and data infrastructure. I like systems that are understandable under pressure:
-          good defaults, crisp runbooks, clean deployment paths, and alerts that mean something.
-        </p>
-      </section>
-
-      <section className="section blog-section" id="blog" aria-labelledby="blog-title">
-        <div className="section-copy" data-reveal>
-          <p className="eyebrow">/ Writing</p>
-          <h2 id="blog-title">Notes on infrastructure, reliability, and the messy middle of production systems.</h2>
-          <p className="section-note">
-            Admin publishing will come after first deployment: MDX posts first, then an authenticated writing flow
-            for drafts, previews, and Git-backed publishing.
-          </p>
-        </div>
-        <div className="post-grid">
-          {posts.map((post, index) => (
-            <article className="post" key={post.slug} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
-              <p className="post-meta">{post.tag} · {post.readTime}</p>
-              <h3>{post.title}</h3>
-              <p>{post.excerpt}</p>
-              <a href={`#/blog/${post.slug}`} aria-label={`Read ${post.title}`}>Read note <ArrowUpRight size={14} /></a>
+        <WorkChapter number="01" title="Experience" description="Building and operating infrastructure in high-trust environments.">
+          {experience.map((item) => (
+            <article className="experience-row" key={`${item.company}-${item.role}`}>
+              <p className="row-meta">{item.dates}</p>
+              <div>
+                <h3>{item.company}</h3>
+                <p>{item.role}</p>
+              </div>
+              <p className="row-summary">{item.summary}</p>
             </article>
           ))}
+        </WorkChapter>
+
+        <WorkChapter number="02" title="Selected Projects" description="Practical systems that solve real problems.">
+          {projects.map((item, index) => (
+            <article className="project-row" key={item.name}>
+              <p className="row-number">{String(index + 1).padStart(2, '0')}</p>
+              <h3>{item.name}</h3>
+              <p className="row-meta">{item.tag}</p>
+              <p className="row-summary">{item.description}</p>
+            </article>
+          ))}
+        </WorkChapter>
+
+        <WorkChapter number="03" title="Open Source" description="Contributing to healthier engineering ecosystems.">
+          {openSource.map((item, index) => (
+            <article className={index === 0 ? 'project-row featured-row' : 'project-row'} key={item.name}>
+              <p className="row-number">{String(index + 1).padStart(2, '0')}</p>
+              <h3>{item.name}</h3>
+              <p className="row-meta">{item.tag}</p>
+              <p className="row-summary">{item.description}</p>
+            </article>
+          ))}
+        </WorkChapter>
+      </section>
+
+      <section className="writing-section" id="blog" aria-labelledby="blog-title">
+        <header className="chapter-header" data-reveal>
+          <h2 id="blog-title">Writing /<br />Field notes</h2>
+          <div>
+            <p>Ideas from the field.<br />Systems, lessons, and what is next.</p>
+            <span className="accent-rule" />
+          </div>
+        </header>
+        <div className="writing-list">
+          {posts.map((post, index) => (
+            <a className="writing-row" href={`#/blog/${post.slug}`} key={post.slug} data-reveal style={{ '--delay': `${index * 70}ms` }}>
+              <p className="writing-number">{String(index + 1).padStart(2, '0')}</p>
+              <p className="writing-meta">{post.date}<br />{post.tag}</p>
+              <h3>{post.title}</h3>
+              <p>{post.excerpt}</p>
+              <ArrowUpRight size={26} aria-hidden="true" />
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="about-section" id="about" aria-labelledby="about-title">
+        <p className="section-kicker">About</p>
+        <div className="about-grid">
+          <h2 id="about-title" data-reveal>I make complex infrastructure understandable under pressure.</h2>
+          <p data-reveal>
+            I design, build, and improve reliable platforms across cloud infrastructure, delivery systems, data,
+            and observability. The goal is always the same: clear systems that teams can trust when the stakes rise.
+          </p>
+        </div>
+        <div className="capabilities" aria-label="Core capabilities">
+          <span>Capabilities</span>
+          <p>AWS</p><i>/</i><p>Kubernetes</p><i>/</i><p>Terraform</p><i>/</i><p>CI/CD</p><i>/</i><p>Observability</p><i>/</i><p>Distributed Systems</p>
         </div>
       </section>
 
@@ -224,29 +269,22 @@ function HomePage() {
   );
 }
 
-function WorkLane({ title, items, delay, role = false }) {
+function WorkChapter({ number, title, description, children }) {
   return (
-    <div className="lane" data-reveal style={{ '--delay': delay }}>
-      <p className="lane-label">{title}</p>
-      {items.map((item, index) => (
-        <article
-          className={role ? 'card role-card' : 'card'}
-          key={role ? `${item.company}-${item.role}` : item.name}
-          data-spotlight
-        >
-          <span className="card-index">{String(index + 1).padStart(2, '0')}</span>
-          <p>{role ? item.company : item.tag}</p>
-          <h3>{role ? item.role : item.name}</h3>
-          <span>{role ? item.summary : item.description}</span>
-        </article>
-      ))}
+    <div className="work-chapter" data-reveal>
+      <div className="chapter-index">
+        <p>{number}</p>
+        <h3>{title}</h3>
+        <span>{description}</span>
+      </div>
+      <div className="chapter-content">{children}</div>
     </div>
   );
 }
 
 function BlogIndex() {
   return (
-    <main>
+    <main id="main-content">
       <section className="page-shell" aria-labelledby="blog-page-title">
         <SiteNav page />
         <div className="page-hero" data-reveal>
@@ -264,7 +302,7 @@ function BlogIndex() {
               <p className="post-meta">{post.tag} · {post.readTime} · {post.date}</p>
               <h2>{post.title}</h2>
               <p>{post.excerpt}</p>
-              <a href={`#/blog/${post.slug}`}>Read article <ArrowUpRight size={16} /></a>
+              <a href={`#/blog/${post.slug}`}>Read article <ArrowUpRight size={16} aria-hidden="true" /></a>
             </article>
           ))}
         </div>
@@ -279,14 +317,14 @@ function ArticlePage({ slug }) {
 
   if (!post) {
     return (
-      <main>
+      <main id="main-content">
         <section className="page-shell">
           <SiteNav page />
           <div className="page-hero narrow" data-reveal>
             <p className="eyebrow">/ Not found</p>
             <h1>That note is not published yet.</h1>
             <p>The blog route exists, but this slug does not match a current post.</p>
-            <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+            <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           </div>
         </section>
         <SiteFooter />
@@ -295,11 +333,11 @@ function ArticlePage({ slug }) {
   }
 
   return (
-    <main>
+    <main id="main-content">
       <article className="page-shell article-page">
         <SiteNav page />
         <header className="article-header" data-reveal>
-          <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+          <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           <p className="eyebrow">/ {post.tag}</p>
           <h1>{post.title}</h1>
           <p>{post.excerpt}</p>
@@ -400,7 +438,7 @@ function AdminGate({ loading = false }) {
   const githubAuthUrl = import.meta.env.VITE_GITHUB_AUTH_URL;
 
   return (
-    <main>
+    <main id="main-content">
       <section className="page-shell admin-page" aria-labelledby="admin-title">
         <SiteNav page />
         <div className="admin-hero" data-reveal>
@@ -426,11 +464,11 @@ function AdminGate({ loading = false }) {
             {loading ? (
               <span className="button disabled-button" aria-disabled="true">Checking session</span>
             ) : githubAuthUrl ? (
-              <a className="button" href={githubAuthUrl}>Sign in with GitHub <ArrowUpRight size={16} /></a>
+              <a className="button" href={githubAuthUrl}>Sign in with GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
             ) : (
               <span className="button disabled-button" aria-disabled="true">GitHub auth not connected</span>
             )}
-            <a className="text-link" href="#/blog"><ArrowLeft size={16} /> Back to blog</a>
+            <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           </div>
         </div>
       </section>
@@ -469,7 +507,7 @@ function AdminEditor() {
   }
 
   return (
-    <main>
+    <main id="main-content">
       <section className="page-shell admin-page" aria-labelledby="admin-title">
         <SiteNav page />
         <div className="admin-hero" data-reveal>
@@ -486,27 +524,33 @@ function AdminEditor() {
             <label>
               Title
               <input
+                name="title"
+                autoComplete="off"
                 value={draft.title}
                 onChange={(event) => updateDraft('title', event.target.value)}
-                placeholder="A practical note on reliability"
+                placeholder="A practical note on reliability…"
               />
             </label>
 
             <label>
               Tag
               <input
+                name="tag"
+                autoComplete="off"
                 value={draft.tag}
                 onChange={(event) => updateDraft('tag', event.target.value)}
-                placeholder="Reliability"
+                placeholder="Reliability…"
               />
             </label>
 
             <label>
               Excerpt
               <textarea
+                name="excerpt"
+                autoComplete="off"
                 value={draft.excerpt}
                 onChange={(event) => updateDraft('excerpt', event.target.value)}
-                placeholder="One crisp sentence that explains why this note matters."
+                placeholder="One crisp sentence that explains why this note matters…"
                 rows={4}
               />
             </label>
@@ -514,16 +558,18 @@ function AdminEditor() {
             <label>
               Body
               <textarea
+                name="body"
+                autoComplete="off"
                 value={draft.body}
                 onChange={(event) => updateDraft('body', event.target.value)}
-                placeholder="Write in plain paragraphs for now. Separate sections with a blank line."
+                placeholder="Write in plain paragraphs for now. Separate sections with a blank line…"
                 rows={12}
               />
             </label>
 
             <div className="editor-actions">
               <button type="button" className="button secondary-button" onClick={clearDraft}>Clear draft</button>
-              <a className="button" href="#/blog">View blog <ArrowUpRight size={16} /></a>
+              <a className="button" href="#/blog">View blog <ArrowUpRight size={16} aria-hidden="true" /></a>
             </div>
           </form>
 
@@ -548,12 +594,14 @@ function AdminEditor() {
 
 function SiteFooter() {
   return (
-    <footer className="footer" id="contact" data-reveal>
-      <p>Open to infrastructure, platform, SRE, and cloud engineering work.</p>
-      <div className="socials">
-        <a href="mailto:iwenyadaniel12@gmail.com"><Mail size={18} /> Email</a>
-        <a href="https://github.com/dpereowei"><Github size={18} /> GitHub</a>
-        <a href="https://linkedin.com/in/pereowei"><Linkedin size={18} /> LinkedIn</a>
+    <footer className="footer" id="contact">
+      <p className="section-kicker">Contact</p>
+      <h2>Let&apos;s build systems that hold.</h2>
+      <div className="contact-grid">
+        <a href="mailto:iwenyadaniel12@gmail.com"><Mail size={22} aria-hidden="true" /><span><b>Email</b>iwenyadaniel12@gmail.com</span></a>
+        <a href="https://github.com/dpereowei"><Github size={22} aria-hidden="true" /><span><b>GitHub</b>github.com/dpereowei</span></a>
+        <a href="https://linkedin.com/in/pereowei"><Linkedin size={22} aria-hidden="true" /><span><b>LinkedIn</b>linkedin.com/in/pereowei</span></a>
+        <p><span className="status-dot" /><span><b>Available for select opportunities</b>Infrastructure, platform, SRE, and cloud engineering.</span></p>
       </div>
     </footer>
   );

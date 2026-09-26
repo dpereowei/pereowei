@@ -2,33 +2,29 @@ export const experience = [
   {
     role: 'Lead Infrastructure Engineer',
     company: 'DLM Capital Group',
+    dates: '2024 - Present',
     summary:
       'Own cloud infrastructure, platform reliability, CI/CD, observability, incident response, and secure deployment paths for transaction-critical financial services systems.',
   },
   {
-    role: 'Cloud / DevOps Engineer',
+    role: 'DevOps Engineer',
     company: 'Cousant',
+    dates: '2023 - 2024',
     summary:
       'Built and maintained cloud infrastructure, automation, deployment workflows, and operational documentation for internal and client-facing systems.',
-  },
-  {
-    role: 'Backend / DevOps Engineer',
-    company: 'Earlier engineering work',
-    summary:
-      'Worked across backend services, Linux operations, API integrations, database-backed systems, and developer workflow automation.',
   },
 ];
 
 export const projects = [
   {
     name: 'Payrail',
-    tag: 'Payments',
+    tag: 'Payments infrastructure',
     description:
       'Payment and infrastructure-oriented engineering work spanning backend systems, operational reliability, and delivery workflows.',
   },
   {
     name: 'Rollercoaster',
-    tag: 'Systems project',
+    tag: 'Developer productivity',
     description:
       'A project showcase for product engineering, system design, delivery ownership, and practical cloud/backend work.',
   },
@@ -54,9 +50,9 @@ export const openSource = [
       'Open source work around Fabric development workflows, local network setup, and developer experience.',
   },
   {
-    name: 'Reporting Data Plane',
-    tag: 'CDC + ClickHouse',
+    name: 'Kubernetes & Hyperledger Fabric',
+    tag: 'Contributor',
     description:
-      'Continuous replication from operational RDS databases into ClickHouse for admin reporting without loading the live database.',
+      'Contributions to production infrastructure, automation, documentation, and developer experience across open source communities.',
   },
 ];

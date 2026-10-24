@@ -4,14 +4,14 @@ export const experience = [
     company: 'DLM Capital Group',
     dates: '2024 - Present',
     summary:
-      'Own cloud infrastructure, platform reliability, CI/CD, observability, incident response, and secure deployment paths for transaction-critical financial services systems.',
+      'Own AWS platform reliability, Kubernetes, CI/CD, observability, incident response, and secure delivery paths for transaction-critical financial services systems.',
   },
   {
     role: 'DevOps Engineer',
     company: 'Cousant',
     dates: '2023 - 2024',
     summary:
-      'Built and maintained cloud infrastructure, automation, deployment workflows, and operational documentation for internal and client-facing systems.',
+      'Consulted across Yalo.ng, Nolt Finance, NoriFi Hub, and Nomaddoc; built AWS foundations, Terraform environments, .NET delivery pipelines, and practical operations tooling.',
   },
 ];
 
@@ -20,13 +20,13 @@ export const projects = [
     name: 'Payrail',
     tag: 'Payments infrastructure',
     description:
-      'Payment and infrastructure-oriented engineering work spanning backend systems, operational reliability, and delivery workflows.',
+      'Backend and payment-systems work centred on reliable delivery, operational safeguards, and infrastructure that keeps transaction paths dependable.',
   },
   {
     name: 'Rollercoaster',
     tag: 'Developer productivity',
     description:
-      'A project showcase for product engineering, system design, delivery ownership, and practical cloud/backend work.',
+      'Product and platform engineering work exploring clear systems design, practical cloud architecture, and ownership from implementation through operation.',
   },
   {
     name: 'gh_issues',
@@ -53,6 +53,6 @@ export const openSource = [
     name: 'Kubernetes & Hyperledger Fabric',
     tag: 'Contributor',
     description:
-      'Contributions to production infrastructure, automation, documentation, and developer experience across open source communities.',
+      'Active open source contributions across Kubernetes and Hyperledger Fabric communities, with a focus on automation, documentation, and developer experience.',
   },
 ];

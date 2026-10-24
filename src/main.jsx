@@ -157,14 +157,16 @@ function HomePage() {
 
         <div className="hero-stage">
           <p className="hero-word" aria-hidden="true">PEREOWEI</p>
-          <img
-            src={portrait}
-            alt="Black and white portrait of Pereowei Daniel"
-            className="portrait"
-            width="1254"
-            height="1254"
-            fetchPriority="high"
-          />
+          <figure className="portrait-field">
+            <img
+              src={portrait}
+              alt="Black and white portrait of Pereowei Daniel"
+              className="portrait"
+              width="1254"
+              height="1254"
+              fetchPriority="high"
+            />
+          </figure>
 
           <h1 className="hero-statement" id="hero-title" data-reveal>
             Infrastructure for systems that cannot afford quiet failure.

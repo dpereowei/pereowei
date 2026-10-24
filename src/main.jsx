@@ -8,10 +8,12 @@ import './styles.css';
 
 function getRoute() {
   const hash = window.location.hash.replace(/^#/, '');
+  const [path, query = ''] = hash.split('?');
+  const authStatus = new URLSearchParams(query).get('auth');
 
-  if (hash === '/blog') return { name: 'blog' };
-  if (hash === '/admin') return { name: 'admin' };
-  if (hash.startsWith('/blog/')) return { name: 'post', slug: hash.replace('/blog/', '') };
+  if (path === '/blog') return { name: 'blog' };
+  if (path === '/admin') return { name: 'admin', authStatus };
+  if (path.startsWith('/blog/')) return { name: 'post', slug: path.replace('/blog/', '') };
 
   return { name: 'home', anchor: hash || 'home' };
 }
@@ -122,7 +124,7 @@ function App() {
 
   const view = useMemo(() => {
     if (route.name === 'blog') return <BlogIndex />;
-    if (route.name === 'admin') return <AdminPage />;
+    if (route.name === 'admin') return <AdminPage authStatus={route.authStatus} />;
     if (route.name === 'post') return <ArticlePage slug={route.slug} />;
     return <HomePage />;
   }, [route]);
@@ -390,16 +392,14 @@ const emptyDraft = {
   body: '',
 };
 
-function AdminPage() {
-  const sessionEndpoint = import.meta.env.VITE_ADMIN_SESSION_ENDPOINT;
+function AdminPage({ authStatus }) {
+  const sessionEndpoint = '/.netlify/functions/auth-session';
   const [sessionState, setSessionState] = useState({
-    loading: Boolean(sessionEndpoint),
+    loading: true,
     authenticated: false,
   });
 
   useEffect(() => {
-    if (!sessionEndpoint) return undefined;
-
     const controller = new AbortController();
 
     async function loadSession() {
@@ -423,21 +423,20 @@ function AdminPage() {
 
     loadSession();
     return () => controller.abort();
-  }, [sessionEndpoint]);
+  }, []);
 
   if (sessionState.loading) {
     return <AdminGate loading />;
   }
 
   if (!sessionState.authenticated) {
-    return <AdminGate />;
+    return <AdminGate authStatus={authStatus} />;
   }
 
   return <AdminEditor />;
 }
 
-function AdminGate({ loading = false }) {
-  const githubAuthUrl = import.meta.env.VITE_GITHUB_AUTH_URL;
+function AdminGate({ loading = false, authStatus }) {
 
   return (
     <main id="main-content">
@@ -459,16 +458,16 @@ function AdminGate({ loading = false }) {
             <p>
               {loading
                 ? 'Checking for an active GitHub session.'
-                : 'GitHub Pages is static, so the secure sign-in step needs a small OAuth token exchange before drafts can publish back to the repository.'}
+                : authStatus === 'denied'
+                  ? 'That GitHub account is not authorised to access the writing room.'
+                  : 'Sign in with the private GitHub account authorised for this site.'}
             </p>
           </div>
           <div className="auth-actions">
             {loading ? (
               <span className="button disabled-button" aria-disabled="true">Checking session</span>
-            ) : githubAuthUrl ? (
-              <a className="button" href={githubAuthUrl}>Sign in with GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
             ) : (
-              <span className="button disabled-button" aria-disabled="true">GitHub auth not connected</span>
+              <a className="button" href="/.netlify/functions/auth-login">Sign in with GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
             )}
             <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           </div>

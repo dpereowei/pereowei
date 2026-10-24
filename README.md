@@ -16,17 +16,15 @@ npm run build
 npm run preview
 ```
 
-## GitHub Pages Deployment
+## Netlify Deployment and Private Admin
 
-This repo includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
+Netlify hosts the static site and the GitHub OAuth functions required by `/#/admin`.
 
-To publish:
+1. Import `dpereowei/pereowei` into Netlify. It reads the build settings from `netlify.toml`.
+2. Add the custom domain `pereowei.weidantech.com` in Netlify, then replace the existing GitHub Pages DNS record with the DNS record Netlify provides.
+3. Create a GitHub OAuth App. Set its callback URL to `https://pereowei.weidantech.com/.netlify/functions/auth-callback`.
+4. In Netlify, create the variables listed in `.env.example` with the **Functions** scope. Generate `SESSION_SECRET` with a password manager or `openssl rand -base64 32`.
 
-1. Push the project to a GitHub repository.
-2. In GitHub, open **Settings > Pages**.
-3. Set **Build and deployment** source to **GitHub Actions**.
-4. Push to `main` or run the workflow manually.
+The OAuth functions only accept the login in `ADMIN_GITHUB_LOGIN`. The GitHub access token never leaves the server-side callback; the browser receives a signed, short-lived `HttpOnly` session cookie.
 
-## Blog Publishing Later
-
-The first version uses static blog previews. A later pass can add MDX posts and an `/admin` authoring flow backed by Git commits.
+The editor currently saves private drafts locally. Publishing to Git-backed post files can be added as the next admin slice.

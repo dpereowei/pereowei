@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-process.env.SITE_URL = 'https://pereowei.weidantech.com';
+process.env.URL = 'https://pereowei.weidantech.com';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-for-a-signature';
-process.env.ADMIN_GITHUB_LOGIN = 'dpereowei';
 
 const { parseCookies, sessionCookie, sessionFromRequest } = await import('../netlify/functions/_auth.mjs');
 

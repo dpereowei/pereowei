@@ -4,6 +4,7 @@ const SESSION_COOKIE = '__Host-pereowei_session';
 const STATE_COOKIE = '__Host-pereowei_oauth_state';
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 const STATE_TTL_SECONDS = 60 * 10;
+export const ADMIN_GITHUB_LOGIN = 'dpereowei';
 
 function base64url(value) {
   return Buffer.from(value).toString('base64url');
@@ -22,8 +23,8 @@ function required(name) {
 }
 
 export function siteUrl() {
-  const url = new URL(required('SITE_URL'));
-  if (url.protocol !== 'https:') throw new Error('SITE_URL must use HTTPS');
+  const url = new URL(required('URL'));
+  if (url.protocol !== 'https:') throw new Error('Netlify URL must use HTTPS');
   return url.origin;
 }
 
@@ -75,7 +76,7 @@ export function sessionFromRequest(request) {
   try {
     const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
     const isExpired = !session.exp || session.exp < Math.floor(Date.now() / 1000);
-    return isExpired || session.login !== required('ADMIN_GITHUB_LOGIN') ? null : session;
+    return isExpired || session.login !== ADMIN_GITHUB_LOGIN ? null : session;
   } catch {
     return null;
   }

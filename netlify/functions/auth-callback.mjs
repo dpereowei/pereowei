@@ -1,4 +1,4 @@
-import { clearStateCookie, cookies, parseCookies, redirect, sessionCookie } from './_auth.mjs';
+import { ADMIN_GITHUB_LOGIN, clearStateCookie, cookies, parseCookies, redirect, sessionCookie } from './_auth.mjs';
 
 export default async (request) => {
   const url = new URL(request.url);
@@ -11,7 +11,7 @@ export default async (request) => {
   }
 
   try {
-    const callbackUrl = `${new URL(process.env.SITE_URL || '').origin}/.netlify/functions/auth-callback`;
+    const callbackUrl = `${new URL(process.env.URL || '').origin}/.netlify/functions/auth-callback`;
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -29,7 +29,7 @@ export default async (request) => {
       headers: { Authorization: `Bearer ${token.access_token}`, Accept: 'application/vnd.github+json' },
     });
     const profile = await profileResponse.json();
-    if (!profileResponse.ok || profile.login !== process.env.ADMIN_GITHUB_LOGIN) throw new Error('Unauthorised account');
+    if (!profileResponse.ok || profile.login !== ADMIN_GITHUB_LOGIN) throw new Error('Unauthorised account');
 
     return redirect('/#/admin', [clearStateCookie(), sessionCookie(profile.login)]);
   } catch {

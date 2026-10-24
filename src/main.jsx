@@ -397,6 +397,7 @@ function AdminPage({ authStatus }) {
   const [sessionState, setSessionState] = useState({
     loading: true,
     authenticated: false,
+    configured: true,
   });
 
   useEffect(() => {
@@ -413,10 +414,11 @@ function AdminPage({ authStatus }) {
         setSessionState({
           loading: false,
           authenticated: Boolean(session?.authenticated && session?.provider === 'github'),
+          configured: response.ok,
         });
       } catch {
         if (!controller.signal.aborted) {
-          setSessionState({ loading: false, authenticated: false });
+          setSessionState({ loading: false, authenticated: false, configured: false });
         }
       }
     }
@@ -430,13 +432,13 @@ function AdminPage({ authStatus }) {
   }
 
   if (!sessionState.authenticated) {
-    return <AdminGate authStatus={authStatus} />;
+    return <AdminGate authStatus={authStatus} configured={sessionState.configured} />;
   }
 
   return <AdminEditor />;
 }
 
-function AdminGate({ loading = false, authStatus }) {
+function AdminGate({ loading = false, authStatus, configured = true }) {
 
   return (
     <main id="main-content">
@@ -458,6 +460,8 @@ function AdminGate({ loading = false, authStatus }) {
             <p>
               {loading
                 ? 'Checking for an active GitHub session.'
+                : !configured
+                  ? 'Private publishing is being connected to Netlify. Sign-in will become available after the domain is moved.'
                 : authStatus === 'denied'
                   ? 'That GitHub account is not authorised to access the writing room.'
                   : 'Sign in with the private GitHub account authorised for this site.'}
@@ -466,8 +470,10 @@ function AdminGate({ loading = false, authStatus }) {
           <div className="auth-actions">
             {loading ? (
               <span className="button disabled-button" aria-disabled="true">Checking session</span>
-            ) : (
+            ) : configured ? (
               <a className="button" href="/.netlify/functions/auth-login">Sign in with GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
+            ) : (
+              <span className="button disabled-button" aria-disabled="true">GitHub auth is being connected</span>
             )}
             <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           </div>

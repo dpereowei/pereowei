@@ -253,8 +253,7 @@ main { width: 100%; overflow: clip; }
 [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
 
 @media (min-width: 1700px) {
-  :root { --page: min(100% - 8rem, 1600px); }
-  .hero-word { font-size: 13rem; }
+  :root { --page: min(100% - 8rem, 1440px); }
 }
 
 @media (max-width: 1100px) {

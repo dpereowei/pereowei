@@ -5,7 +5,7 @@ import { oauthCallbackHandoff } from '../src/lib/oauth-callback.js';
 process.env.URL = 'https://pereowei.weidantech.com';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-for-a-signature';
 
-const { parseCookies, redirect, sessionCookie, sessionFromRequest } = await import('../netlify/functions/_auth.mjs');
+const { parseCookies, redirect, sessionCookie, sessionFromRequest, validOAuthCallback } = await import('../netlify/functions/_auth.mjs');
 
 test('preserves an absolute OAuth destination', () => {
   const response = redirect('https://github.com/login/oauth/authorize?client_id=example');
@@ -23,8 +23,22 @@ test('hands a root OAuth response to the protected callback', () => {
   );
 });
 
+test('hands off a provider callback that omits state', () => {
+  assert.equal(
+    oauthCallbackHandoff({ pathname: '/', search: '?code=temporary-code&iss=https%3A%2F%2Fgithub.com' }),
+    '/.netlify/functions/auth-callback?code=temporary-code&iss=https%3A%2F%2Fgithub.com'
+  );
+});
+
 test('does not hand off ordinary homepage visits', () => {
   assert.equal(oauthCallbackHandoff({ pathname: '/', search: '' }), null);
+});
+
+test('requires the original state cookie and rejects a mismatched callback state', () => {
+  assert.equal(validOAuthCallback({ code: 'code', state: '', expectedState: 'cookie-state' }), true);
+  assert.equal(validOAuthCallback({ code: 'code', state: 'cookie-state', expectedState: 'cookie-state' }), true);
+  assert.equal(validOAuthCallback({ code: 'code', state: 'different-state', expectedState: 'cookie-state' }), false);
+  assert.equal(validOAuthCallback({ code: 'code', state: '', expectedState: '' }), false);
 });
 
 test('creates and verifies an authorised signed session', () => {

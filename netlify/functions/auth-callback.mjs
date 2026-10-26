@@ -1,4 +1,4 @@
-import { ADMIN_GITHUB_LOGIN, clearStateCookie, cookies, parseCookies, redirect, sessionCookie } from './_auth.mjs';
+import { ADMIN_GITHUB_LOGIN, clearStateCookie, cookies, parseCookies, redirect, sessionCookie, validOAuthCallback } from './_auth.mjs';
 
 export default async (request) => {
   const url = new URL(request.url);
@@ -6,7 +6,7 @@ export default async (request) => {
   const state = url.searchParams.get('state');
   const expectedState = parseCookies(request.headers.get('cookie') || '')[cookies.STATE_COOKIE];
 
-  if (!code || !state || !expectedState || state !== expectedState) {
+  if (!validOAuthCallback({ code, state, expectedState })) {
     return redirect('/#/admin?auth=denied', [clearStateCookie()]);
   }
 

@@ -86,6 +86,11 @@ export function newState() {
   return randomBytes(32).toString('base64url');
 }
 
+export function validOAuthCallback({ code, state, expectedState }) {
+  if (!code || !expectedState) return false;
+  return !state || state === expectedState;
+}
+
 export function redirect(destination, cookies = []) {
   const headers = new Headers({ Location: new URL(destination, siteUrl()).toString(), 'Cache-Control': 'no-store' });
   cookies.forEach((value) => headers.append('Set-Cookie', value));

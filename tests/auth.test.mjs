@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { oauthCallbackHandoff } from '../src/lib/oauth-callback.js';
 
 process.env.URL = 'https://pereowei.weidantech.com';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-for-a-signature';
@@ -9,6 +10,21 @@ const { parseCookies, redirect, sessionCookie, sessionFromRequest } = await impo
 test('preserves an absolute OAuth destination', () => {
   const response = redirect('https://github.com/login/oauth/authorize?client_id=example');
   assert.equal(response.headers.get('location'), 'https://github.com/login/oauth/authorize?client_id=example');
+});
+
+test('hands a root OAuth response to the protected callback', () => {
+  const handoff = oauthCallbackHandoff({
+    pathname: '/',
+    search: '?code=temporary-code&state=expected-state&iss=https%3A%2F%2Fgithub.com',
+  });
+  assert.equal(
+    handoff,
+    '/.netlify/functions/auth-callback?code=temporary-code&state=expected-state&iss=https%3A%2F%2Fgithub.com'
+  );
+});
+
+test('does not hand off ordinary homepage visits', () => {
+  assert.equal(oauthCallbackHandoff({ pathname: '/', search: '' }), null);
 });
 
 test('creates and verifies an authorised signed session', () => {

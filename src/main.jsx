@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import portrait from '../assets/pereowei-headshot-bw-cutout.png';
 import { experience, openSource, projects } from './content/portfolio';
 import { getPost, posts } from './content/posts';
+import { oauthCallbackHandoff } from './lib/oauth-callback';
 import './styles.css';
 
 function getRoute() {
@@ -614,4 +615,10 @@ function SiteFooter() {
   );
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+const oauthCallbackUrl = oauthCallbackHandoff(window.location);
+
+if (oauthCallbackUrl) {
+  window.location.replace(oauthCallbackUrl);
+} else {
+  createRoot(document.getElementById('root')).render(<App />);
+}

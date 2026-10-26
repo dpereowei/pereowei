@@ -4,7 +4,12 @@ import test from 'node:test';
 process.env.URL = 'https://pereowei.weidantech.com';
 process.env.SESSION_SECRET = 'test-secret-that-is-long-enough-for-a-signature';
 
-const { parseCookies, sessionCookie, sessionFromRequest } = await import('../netlify/functions/_auth.mjs');
+const { parseCookies, redirect, sessionCookie, sessionFromRequest } = await import('../netlify/functions/_auth.mjs');
+
+test('preserves an absolute OAuth destination', () => {
+  const response = redirect('https://github.com/login/oauth/authorize?client_id=example');
+  assert.equal(response.headers.get('location'), 'https://github.com/login/oauth/authorize?client_id=example');
+});
 
 test('creates and verifies an authorised signed session', () => {
   const setCookie = sessionCookie('dpereowei');

@@ -86,8 +86,8 @@ export function newState() {
   return randomBytes(32).toString('base64url');
 }
 
-export function redirect(path, cookies = []) {
-  const headers = new Headers({ Location: `${siteUrl()}${path}`, 'Cache-Control': 'no-store' });
+export function redirect(destination, cookies = []) {
+  const headers = new Headers({ Location: new URL(destination, siteUrl()).toString(), 'Cache-Control': 'no-store' });
   cookies.forEach((value) => headers.append('Set-Cookie', value));
   return new Response(null, { status: 302, headers });
 }

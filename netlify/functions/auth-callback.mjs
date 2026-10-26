@@ -7,7 +7,7 @@ export default async (request) => {
   const expectedState = parseCookies(request.headers.get('cookie') || '')[cookies.STATE_COOKIE];
 
   if (!validOAuthCallback({ code, state, expectedState })) {
-    return redirect('/#/admin?auth=denied', [clearStateCookie()]);
+    return redirect('/?auth=denied', [clearStateCookie()]);
   }
 
   try {
@@ -31,8 +31,8 @@ export default async (request) => {
     const profile = await profileResponse.json();
     if (!profileResponse.ok || profile.login !== ADMIN_GITHUB_LOGIN) throw new Error('Unauthorised account');
 
-    return redirect('/#/admin', [clearStateCookie(), sessionCookie(profile.login)]);
+    return redirect('/?auth=admin', [clearStateCookie(), sessionCookie(profile.login)]);
   } catch {
-    return redirect('/#/admin?auth=denied', [clearStateCookie()]);
+    return redirect('/?auth=denied', [clearStateCookie()]);
   }
 };

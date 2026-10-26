@@ -30,6 +30,11 @@ test('hands off a provider callback that omits state', () => {
   );
 });
 
+test('converts a server-side auth handoff to the private hash route', () => {
+  assert.equal(oauthCallbackHandoff({ pathname: '/', search: '?auth=admin' }), '/#/admin?auth=admin');
+  assert.equal(oauthCallbackHandoff({ pathname: '/', search: '?code=old-code&auth=denied' }), '/#/admin?auth=denied');
+});
+
 test('does not hand off ordinary homepage visits', () => {
   assert.equal(oauthCallbackHandoff({ pathname: '/', search: '' }), null);
 });

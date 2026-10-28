@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowLeft, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, BadgeCheck, Github, Linkedin, Mail } from 'lucide-react';
 import portrait from '../assets/pereowei-headshot-bw-cutout.png';
 import { experience, openSource, projects } from './content/portfolio';
 import { getPost, posts } from './content/posts';
@@ -186,6 +186,23 @@ function HomePage() {
             <p>Build <span>/</span> Operate <span>/</span> Improve</p>
           </div>
         </div>
+      </section>
+
+      <section className="credential-strip" aria-label="Professional credential">
+        <a
+          className="toptal-credential"
+          href="https://www.toptal.com/developers/resume/daniel-iwenya#BmdmAM"
+          target="_blank"
+          rel="noreferrer"
+          data-reveal
+        >
+          <span className="toptal-emblem"><BadgeCheck size={31} strokeWidth={2.4} aria-hidden="true" /></span>
+          <span className="toptal-copy">
+            <strong>Top 3% talent</strong>
+            <span>Vetted by Toptal</span>
+          </span>
+          <span className="toptal-action">View profile <ArrowUpRight size={17} aria-hidden="true" /></span>
+        </a>
       </section>
 
       <section className="work-section" id="work" aria-labelledby="work-title">

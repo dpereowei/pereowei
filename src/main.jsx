@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUpRight, BadgeCheck, Github, Linkedin, Mail } from 'luc
 import { experience, openSource, projects } from './content/portfolio';
 import { getPost, posts } from './content/posts';
 import { oauthCallbackHandoff } from './lib/oauth-callback';
+import { observeReveals } from './lib/reveal';
 import infrastructureArt from '../assets/infrastructure-sculpture.png';
 import './styles.css';
 import './hero.css';
@@ -63,19 +64,7 @@ function useMotion(route) {
       return undefined;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.18 }
-    );
-
-    document.querySelectorAll('[data-reveal]').forEach((node) => observer.observe(node));
+    const cleanupReveals = observeReveals(document.body, { IntersectionObserver, MutationObserver });
 
     let frame = 0;
     const updateScroll = () => {
@@ -112,7 +101,7 @@ function useMotion(route) {
     window.addEventListener('pointermove', onPointerMove, { passive: true });
 
     return () => {
-      observer.disconnect();
+      cleanupReveals();
       cleanupSpotlights();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointermove', onPointerMove);

@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ArrowLeft, ArrowUpRight, BadgeCheck, Github, Linkedin, Mail } from 'lucide-react';
-import portrait from '../assets/pereowei-headshot-bw-cutout.png';
 import { experience, openSource, projects } from './content/portfolio';
 import { getPost, posts } from './content/posts';
 import { oauthCallbackHandoff } from './lib/oauth-callback';
+import infrastructureArt from '../assets/infrastructure-sculpture.png';
 import './styles.css';
+import './hero.css';
+import './site-theme.css';
 
 function getRoute() {
   const hash = window.location.hash.replace(/^#/, '');
@@ -140,13 +142,12 @@ function App() {
 
 function SiteNav({ page = false }) {
   return (
-    <nav className={page ? 'nav page-nav' : 'nav'} aria-label="Primary navigation" data-reveal>
-      <a href="#home" className="brand">Pereowei Daniel</a>
-      <div className="nav-links">
-        <a href="#work">Work</a>
-        <a href="#/blog">Blog</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+    <nav className={page ? 'reference-nav page-nav' : 'reference-nav'} aria-label="Primary navigation">
+      <a href="#home" className="reference-brand"><span className="reference-mark" aria-hidden="true"><i /><i /></span>Pereowei Daniel</a>
+      <span className="reference-role">Infrastructure &amp; Platform Engineer</span>
+      <div className="reference-links">
+        <a href="#work">Work</a><a href="#about">Approach</a><a href="#/blog">Notes</a><a href="#contact">Contact</a>
+        <a className="reference-cta" href="#work" aria-label="Read the work"><span>Read the work</span> <ArrowUpRight size={20} aria-hidden="true" /></a>
       </div>
     </nav>
   );
@@ -155,35 +156,26 @@ function SiteNav({ page = false }) {
 function HomePage() {
   return (
     <main id="main-content">
-      <section className="hero" id="home" aria-labelledby="hero-title">
+      <section className="hero reference-hero" id="home" aria-labelledby="hero-title">
         <SiteNav />
 
-        <div className="hero-stage">
-          <p className="hero-word" aria-hidden="true">PEREOWEI</p>
-          <figure className="portrait-field">
-            <img
-              src={portrait}
-              alt="Black and white portrait of Pereowei Daniel"
-              className="portrait"
-              width="1254"
-              height="1254"
-              fetchPriority="high"
-            />
-          </figure>
-
-          <h1 className="hero-statement" id="hero-title" data-reveal>
-            Infrastructure for systems that cannot afford quiet failure.
-          </h1>
-
-          <div className="hero-proof" data-reveal style={{ '--delay': '100ms' }}>
-            <p>Lead Infrastructure Engineer</p>
-            <p>FabricOps Maintainer under LFDT</p>
-            <a className="text-link" href="#work">Selected work <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <div className="operator-hero">
+          <div className="operator-copy">
+            <h1 id="hero-title"><span className="headline-line">I make the</span><span className="headline-line">invisible</span><span className="headline-line">dependable<span className="headline-period">.</span></span></h1>
           </div>
 
-          <div className="hero-rail" aria-label="Professional availability">
-            <p><span className="status-dot" /> Available for select opportunities</p>
-            <p>Build <span>/</span> Operate <span>/</span> Improve</p>
+          <img className="reference-art" src={infrastructureArt} alt="Architectural server towers connected by bridges and red cable routes" width="1184" height="1317" fetchPriority="high" />
+
+          <div className="operator-proof" aria-label="Selected impact">
+            <div><strong>1M+</strong><span>Active users</span></div>
+            <div><strong>30%</strong><span>Cloud spend reduced</span></div>
+            <div><strong>4</strong><span>AWS accounts separated</span></div>
+            <div><strong>LFDT</strong><span>FabricOps maintainer</span></div>
+          </div>
+
+          <div className="operator-footer" aria-label="Professional focus">
+            <p>Operator's logbook / Pereowei Daniel</p>
+            <p>Infra <span>/</span> Platform <span>/</span> Automation</p>
           </div>
         </div>
       </section>
@@ -207,7 +199,7 @@ function HomePage() {
 
       <section className="work-section" id="work" aria-labelledby="work-title">
         <header className="chapter-header" data-reveal>
-          <h2 id="work-title">Work /<br />Systems in production</h2>
+          <div className="chapter-heading"><p className="section-kicker">01 / Selected work</p><h2 id="work-title">Systems in<br />production<span className="red-period">.</span></h2></div>
           <div>
             <p>Real-world infrastructure.<br />Open systems. Lasting impact.</p>
             <span className="accent-rule" />
@@ -252,7 +244,7 @@ function HomePage() {
 
       <section className="writing-section" id="blog" aria-labelledby="blog-title">
         <header className="chapter-header" data-reveal>
-          <h2 id="blog-title">Writing /<br />Field notes</h2>
+          <div className="chapter-heading"><p className="section-kicker">02 / Writing</p><h2 id="blog-title">Field notes<span className="red-period">.</span></h2></div>
           <div>
             <p>Ideas from the field.<br />Systems, lessons, and what is next.</p>
             <span className="accent-rule" />
@@ -272,7 +264,7 @@ function HomePage() {
       </section>
 
       <section className="about-section" id="about" aria-labelledby="about-title">
-        <p className="section-kicker">About</p>
+        <p className="section-kicker">03 / Approach</p>
         <div className="about-grid">
           <h2 id="about-title" data-reveal>I make complex infrastructure understandable under pressure.</h2>
           <p data-reveal>
@@ -310,7 +302,7 @@ function BlogIndex() {
       <section className="page-shell" aria-labelledby="blog-page-title">
         <SiteNav page />
         <div className="page-hero" data-reveal>
-          <p className="eyebrow">/ Blog</p>
+          <p className="eyebrow">Operator&apos;s logbook / Notes</p>
           <h1 id="blog-page-title">Field notes on infrastructure and reliability.</h1>
           <p>
             Short, practical notes on cloud systems, production operations, open source work, and the engineering
@@ -464,11 +456,8 @@ function AdminGate({ loading = false, authStatus, configured = true }) {
         <SiteNav page />
         <div className="admin-hero" data-reveal>
           <p className="eyebrow">/ Admin</p>
-          <h1 id="admin-title">GitHub sign-in required.</h1>
-          <p>
-            The writing room is intentionally hidden from public navigation. The direct admin route stays available,
-            but the editor only opens after a GitHub-backed admin session exists.
-          </p>
+          <h1 id="admin-title">The writing room.</h1>
+          <p>Private access for Pereowei Daniel.</p>
         </div>
 
         <div className="auth-panel" data-reveal data-spotlight>
@@ -479,7 +468,7 @@ function AdminGate({ loading = false, authStatus, configured = true }) {
               {loading
                 ? 'Checking for an active GitHub session.'
                 : !configured
-                  ? 'Private publishing is being connected to Netlify. Sign-in will become available after the domain is moved.'
+                  ? 'Sign-in is unavailable. Please try again later.'
                 : authStatus === 'denied'
                   ? 'That GitHub account is not authorised to access the writing room.'
                   : 'Sign in with the private GitHub account authorised for this site.'}
@@ -537,11 +526,8 @@ function AdminEditor() {
         <SiteNav page />
         <div className="admin-hero" data-reveal>
           <p className="eyebrow">/ Admin</p>
-          <h1 id="admin-title">Draft and preview blog posts.</h1>
-          <p>
-            This is the first writing slice: browser-saved drafts with a live preview. The next publishing slice can
-            connect this shape to Git-backed content.
-          </p>
+          <h1 id="admin-title">A new field note.</h1>
+          <p>Draft / Saved on this device</p>
         </div>
 
         <div className="admin-layout">
@@ -620,7 +606,7 @@ function AdminEditor() {
 function SiteFooter() {
   return (
     <footer className="footer" id="contact">
-      <p className="section-kicker">Contact</p>
+      <p className="section-kicker">Contact / Start a conversation</p>
       <h2>Let&apos;s build systems that hold.</h2>
       <div className="contact-grid">
         <a href="mailto:iwenyadaniel12@gmail.com"><Mail size={22} aria-hidden="true" /><span><b>Email</b>iwenyadaniel12@gmail.com</span></a>
@@ -628,6 +614,7 @@ function SiteFooter() {
         <a href="https://linkedin.com/in/pereowei"><Linkedin size={22} aria-hidden="true" /><span><b>LinkedIn</b>linkedin.com/in/pereowei</span></a>
         <p><span className="status-dot" /><span><b>Available for select opportunities</b>Infrastructure, platform, SRE, and cloud engineering.</span></p>
       </div>
+      <div className="site-colophon"><a href="#home">Pereowei Daniel</a><p>Infra / Platform / Automation</p><a href="#home">Back to top &uarr;</a></div>
     </footer>
   );
 }

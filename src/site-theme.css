@@ -110,6 +110,20 @@ body::before {
 .preview-panel h2 { margin-top: 1rem; overflow-wrap: anywhere; }
 .preview-body p { overflow-wrap: anywhere; }
 
+/* Keep screen-sized hairlines substantial instead of using the font's poster optics. */
+h1, h2, h3, .toptal-copy strong, .chapter-index > p, .writing-number,
+.chapter-header h2, .chapter-index h3, .experience-row h3, .project-row h3, .featured-row h3,
+.writing-row h3, .about-grid h2, .footer h2, .page-hero h1, .article-header h1, .admin-hero h1,
+.article-card h2, .article-body h2, .auth-panel h2, .preview-panel h2 {
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 18;
+}
+.reference-hero .operator-copy h1 { font-variation-settings: "opsz" 12; }
+.reference-hero .operator-proof strong {
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 12;
+}
+
 @media (max-width: 1200px) {
   .chapter-header h2 { font-size: 68px; }
   .work-chapter { grid-template-columns: 11rem minmax(0,1fr); gap: 2rem; }

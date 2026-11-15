@@ -27,12 +27,12 @@
 .reference-links .reference-cta { display: inline-flex; align-items: center; gap: .6rem; color: var(--hero-accent); border-bottom: 1px solid; padding-block: .45rem; margin-left: 1.5rem; white-space: nowrap; }
 .reference-hero .operator-hero { display: block; min-height: 0; height: 950px; padding: 0; }
 .reference-hero .operator-copy { position: relative; z-index: 2; max-width: none; width: 850px; padding-top: 78px; }
-.reference-hero .operator-copy h1 { font-family: "Bodoni Moda", Didot, serif; font-optical-sizing: auto; font-size: 148px; font-weight: 600; line-height: .93; letter-spacing: 0; margin: 0; text-wrap: initial; }
+.reference-hero .operator-copy h1 { font-family: "Bodoni Moda", Didot, serif; font-size: 148px; font-weight: 600; line-height: .93; letter-spacing: 0; margin: 0; text-wrap: initial; }
 .reference-hero .headline-line { display: block; color: inherit; white-space: nowrap; }
 .reference-hero .headline-period { color: var(--hero-accent); }
 .reference-art { position: absolute; z-index: 1; top: 12px; right: -170px; width: 1010px; height: 890px; object-fit: contain; pointer-events: none; }
 .reference-hero .operator-proof { position: relative; z-index: 2; display: grid; grid-template-columns: 175px 190px 150px 170px; gap: 28px; padding: 0; border: 0; margin-top: 88px; }
-.reference-hero .operator-proof strong { color: inherit; font: 500 60px/1 "Bodoni Moda", Didot, serif; }
+.reference-hero .operator-proof strong { color: inherit; font: 600 60px/1 "Bodoni Moda", Didot, serif; }
 .reference-hero .operator-proof span { color: inherit; font-size: 12px; line-height: 1.8; letter-spacing: 0; max-width: 130px; margin-top: 8px; }
 .reference-hero .operator-proof > div + div::before { top: 28px; left: -30px; font: 300 40px Georgia,serif; }
 .reference-hero .operator-footer { position: absolute; z-index: 3; bottom: 48px; width: 100%; border: 0; margin: 0; padding: 0; font-size: 9px; letter-spacing: 0; color: #e8e5dd; }

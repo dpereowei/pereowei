@@ -2,13 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ArrowLeft, ArrowUpRight, BadgeCheck, Github, Linkedin, Mail } from 'lucide-react';
 import { experience, openSource, projects } from './content/portfolio';
-import { getPost, posts } from './content/posts';
+import { posts as seedPosts } from './content/posts';
+import { postMarkdown, markdownHeadings, mergePosts } from './lib/blog';
+import Markdown from './components/Markdown';
+import AdminEditor from './components/AdminEditor';
 import { oauthCallbackHandoff } from './lib/oauth-callback';
 import { observeReveals } from './lib/reveal';
 import infrastructureArt from '../assets/infrastructure-sculpture.png';
 import './styles.css';
 import './hero.css';
 import './site-theme.css';
+import './editor.css';
 
 function getRoute() {
   const hash = window.location.hash.replace(/^#/, '');
@@ -20,13 +24,6 @@ function getRoute() {
   if (path.startsWith('/blog/')) return { name: 'post', slug: path.replace('/blog/', '') };
 
   return { name: 'home', anchor: hash || 'home' };
-}
-
-function slugify(value) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
 }
 
 function useRoute() {
@@ -113,13 +110,33 @@ function useMotion(route) {
 function App() {
   const route = useRoute();
   useMotion(route);
+  const [posts, setPosts] = useState(seedPosts);
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [postsError, setPostsError] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadPosts() {
+      try {
+        const response = await fetch('/.netlify/functions/blog-posts', { signal: controller.signal });
+        if (!response.ok) throw new Error('Unable to load published articles');
+        const data = await response.json();
+        setPosts(mergePosts(seedPosts, data.posts, data.suppressed));
+        setPostsError(false);
+      } catch { if (!controller.signal.aborted) setPostsError(true); }
+      finally { if (!controller.signal.aborted) setPostsLoading(false); }
+    }
+    loadPosts();
+    window.addEventListener('blog-published', loadPosts);
+    return () => { controller.abort(); window.removeEventListener('blog-published', loadPosts); };
+  }, [route.name]);
 
   const view = useMemo(() => {
-    if (route.name === 'blog') return <BlogIndex />;
+    if (route.name === 'blog') return <BlogIndex posts={posts} loading={postsLoading} error={postsError} />;
     if (route.name === 'admin') return <AdminPage authStatus={route.authStatus} />;
-    if (route.name === 'post') return <ArticlePage slug={route.slug} />;
-    return <HomePage />;
-  }, [route]);
+    if (route.name === 'post') return <ArticlePage slug={route.slug} posts={posts} loading={postsLoading} error={postsError} />;
+    return <HomePage posts={posts} />;
+  }, [route, posts, postsLoading, postsError]);
 
   return (
     <>
@@ -142,7 +159,7 @@ function SiteNav({ page = false }) {
   );
 }
 
-function HomePage() {
+function HomePage({ posts }) {
   return (
     <main id="main-content">
       <section className="hero reference-hero" id="home" aria-labelledby="hero-title">
@@ -285,7 +302,7 @@ function WorkChapter({ number, title, description, children }) {
   );
 }
 
-function BlogIndex() {
+function BlogIndex({ posts, loading, error }) {
   return (
     <main id="main-content">
       <section className="page-shell" aria-labelledby="blog-page-title">
@@ -300,6 +317,9 @@ function BlogIndex() {
         </div>
 
         <div className="article-list">
+          {loading && <p role="status" className="editor-notice">Loading articles...</p>}
+          {error && <p role="status" className="editor-notice">Latest articles are temporarily unavailable.</p>}
+          {!loading && !error && posts.length === 0 && <p className="editor-notice">No articles published yet.</p>}
           {posts.map((post, index) => (
             <article className="article-card" key={post.slug} data-reveal data-spotlight style={{ '--delay': `${index * 90}ms` }}>
               <p className="post-meta">{post.tag} · {post.readTime} · {post.date}</p>
@@ -315,8 +335,8 @@ function BlogIndex() {
   );
 }
 
-function ArticlePage({ slug }) {
-  const post = getPost(slug);
+function ArticlePage({ slug, posts, loading, error }) {
+  const post = posts.find((entry) => entry.slug === slug);
 
   if (!post) {
     return (
@@ -325,8 +345,8 @@ function ArticlePage({ slug }) {
           <SiteNav page />
           <div className="page-hero narrow" data-reveal>
             <p className="eyebrow">/ Not found</p>
-            <h1>That note is not published yet.</h1>
-            <p>The blog route exists, but this slug does not match a current post.</p>
+            <h1>{loading ? 'Loading this field note.' : error ? 'This note is temporarily unavailable.' : 'That note is not published yet.'}</h1>
+            <p>{error ? 'Please try again shortly.' : 'Return to the notes index to browse published articles.'}</p>
             <a className="text-link" href="#/blog"><ArrowLeft size={16} aria-hidden="true" /> Back to blog</a>
           </div>
         </section>
@@ -350,32 +370,22 @@ function ArticlePage({ slug }) {
         <div className="article-layout">
           <aside className="article-toc" data-reveal>
             <p>On This Page</p>
-            {post.sections.map((section) => (
+            {markdownHeadings(postMarkdown(post)).map((section) => (
               <a
-                key={section.heading}
+                key={section.id}
                 href={`#/blog/${post.slug}`}
                 onClick={(event) => {
                   event.preventDefault();
-                  document.getElementById(slugify(section.heading))?.scrollIntoView({ behavior: 'smooth' });
+                  document.querySelector('.article-body')?.querySelector(`[id="${CSS.escape(section.id)}"]`)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
                 }}
               >
-                {section.heading}
+                {section.title}
               </a>
             ))}
           </aside>
 
           <div className="article-body">
-            {post.sections.map((section, index) => (
-              <section
-                id={slugify(section.heading)}
-                key={section.heading}
-                data-reveal
-                style={{ '--delay': `${index * 80}ms` }}
-              >
-                <h2>{section.heading}</h2>
-                <p>{section.body}</p>
-              </section>
-            ))}
+            <Markdown>{postMarkdown(post)}</Markdown>
           </div>
         </div>
       </article>
@@ -383,13 +393,6 @@ function ArticlePage({ slug }) {
     </main>
   );
 }
-
-const emptyDraft = {
-  title: '',
-  tag: 'Reliability',
-  excerpt: '',
-  body: '',
-};
 
 function AdminPage({ authStatus }) {
   const sessionEndpoint = '/.netlify/functions/auth-session';
@@ -434,7 +437,7 @@ function AdminPage({ authStatus }) {
     return <AdminGate authStatus={authStatus} configured={sessionState.configured} />;
   }
 
-  return <AdminEditor />;
+  return <AdminEditor navigation={<SiteNav page />} footer={<SiteFooter />} />;
 }
 
 function AdminGate({ loading = false, authStatus, configured = true }) {
@@ -480,117 +483,6 @@ function AdminGate({ loading = false, authStatus, configured = true }) {
   );
 }
 
-function AdminEditor() {
-  const [draft, setDraft] = useState(() => {
-    try {
-      const stored = window.localStorage.getItem('pereowei-blog-draft');
-      return stored ? { ...emptyDraft, ...JSON.parse(stored) } : emptyDraft;
-    } catch {
-      return emptyDraft;
-    }
-  });
-
-  const slug = draft.title ? slugify(draft.title) : 'new-post-slug';
-  const paragraphs = draft.body
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
-
-  function updateDraft(field, value) {
-    setDraft((current) => {
-      const next = { ...current, [field]: value };
-      window.localStorage.setItem('pereowei-blog-draft', JSON.stringify(next));
-      return next;
-    });
-  }
-
-  function clearDraft() {
-    window.localStorage.removeItem('pereowei-blog-draft');
-    setDraft(emptyDraft);
-  }
-
-  return (
-    <main id="main-content">
-      <section className="page-shell admin-page" aria-labelledby="admin-title">
-        <SiteNav page />
-        <div className="admin-hero" data-reveal>
-          <p className="eyebrow">/ Admin</p>
-          <h1 id="admin-title">A new field note.</h1>
-          <p>Draft / Saved on this device</p>
-        </div>
-
-        <div className="admin-layout">
-          <form className="editor-panel" data-reveal>
-            <label>
-              Title
-              <input
-                name="title"
-                autoComplete="off"
-                value={draft.title}
-                onChange={(event) => updateDraft('title', event.target.value)}
-                placeholder="A practical note on reliability…"
-              />
-            </label>
-
-            <label>
-              Tag
-              <input
-                name="tag"
-                autoComplete="off"
-                value={draft.tag}
-                onChange={(event) => updateDraft('tag', event.target.value)}
-                placeholder="Reliability…"
-              />
-            </label>
-
-            <label>
-              Excerpt
-              <textarea
-                name="excerpt"
-                autoComplete="off"
-                value={draft.excerpt}
-                onChange={(event) => updateDraft('excerpt', event.target.value)}
-                placeholder="One crisp sentence that explains why this note matters…"
-                rows={4}
-              />
-            </label>
-
-            <label>
-              Body
-              <textarea
-                name="body"
-                autoComplete="off"
-                value={draft.body}
-                onChange={(event) => updateDraft('body', event.target.value)}
-                placeholder="Write in plain paragraphs for now. Separate sections with a blank line…"
-                rows={12}
-              />
-            </label>
-
-            <div className="editor-actions">
-              <button type="button" className="button secondary-button" onClick={clearDraft}>Clear draft</button>
-              <a className="button" href="#/blog">View blog <ArrowUpRight size={16} aria-hidden="true" /></a>
-            </div>
-          </form>
-
-          <aside className="preview-panel" data-reveal style={{ '--delay': '90ms' }}>
-            <p className="post-meta">{draft.tag || 'Tag'} · Draft · /{slug}</p>
-            <h2>{draft.title || 'Untitled draft'}</h2>
-            <p>{draft.excerpt || 'Your excerpt preview will appear here.'}</p>
-            <div className="preview-body">
-              {paragraphs.length > 0 ? (
-                paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
-              ) : (
-                <p>Start writing to preview the article body.</p>
-              )}
-            </div>
-          </aside>
-        </div>
-      </section>
-      <SiteFooter />
-    </main>
-  );
-}
 
 function SiteFooter() {
   return (
